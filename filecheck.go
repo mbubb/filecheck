@@ -1,23 +1,29 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
-	"path"
 	"path/filepath"
 )
 
 func main() {
-	pathPtr := flag.String("basepath", "/Users/mbubb/git/terraforming", "string - path to search")
+	pathPtr := flag.String("basepath", "/Users/mbubb/git/terraforming", "path to search for files")
 	flag.Parse()
 	
 	fmt.Printf(*pathPtr)
 
 	list := getTerraScript(*pathPtr)
-	for i, p := range list {
-		fmt.Printf("[%d:%s===%s]\n", i, path.Dir(p), path.Base(p))
+	//for i, p := range list {
+	//	fmt.Printf("[%d:%s===%s]\n", i, path.Dir(p), path.Base(p))
+	// }
+	for _, tfile := range list {
+		fmt.Printf("%s\n", tfile)
+		readFile(tfile)
 	}
+
 }
 
 func getTerraScript(rootpath string) []string {
@@ -34,7 +40,25 @@ func getTerraScript(rootpath string) []string {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
+		log.Fatal(err)
 	}
 	return list
+}
+
+func readFile(fname string) {
+    f, err := os.Open(fname)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+    for scanner.Scan() {
+        fmt.Println(scanner.Text())
+    }
+
+    if err := scanner.Err(); err != nil {
+        log.Fatal(err)
+    }
+
 }
